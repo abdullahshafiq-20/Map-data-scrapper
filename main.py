@@ -13,9 +13,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
-ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 
 def wind_mode_headless():
     chrome_options = Options()
@@ -128,6 +138,15 @@ class App(ctk.CTk):
 
         self.title("Google Maps Scraper")
         self.geometry("600x500")
+        ctk.set_appearance_mode("light")
+        try:
+            ctk.set_default_color_theme(resource_path("color.json"))
+        except Exception as e:
+            print(f"Error loading color theme: {e}")
+            print("Falling back to default theme")
+        icon_path = "icon.ico"
+        if os.path.exists(icon_path):
+            self.after(200, lambda: self.iconbitmap(icon_path))
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
